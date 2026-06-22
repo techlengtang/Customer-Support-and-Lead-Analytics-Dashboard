@@ -3,6 +3,14 @@ import pandas as pd
 import plotly.express as px
 import plotly.figure_factory as ff
 
+from utils.paths import get_config_path
+from utils.subclass_charts import (
+    get_subclass_summaries_from_df,
+    render_all_subclass_charts,
+    render_objection_class_overview,
+)
+from utils.wordcloud_viz import render_objection_wordcloud_section
+
 
 
 def show_objection_analysis(df):
@@ -45,6 +53,12 @@ def show_objection_analysis(df):
             )
 
     st.markdown("<br>", unsafe_allow_html=True)
+
+    # =========================
+    # WORD CLOUD
+    # =========================
+
+    render_objection_wordcloud_section(df)
 
     # =========================
     # MONTHLY TREND
@@ -191,6 +205,33 @@ def show_objection_analysis(df):
         width="stretch",
         config={"displayModeBar": False}
     )
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # =========================
+    # OBJECTION CLASS OVERVIEW
+    # =========================
+
+    render_objection_class_overview(df)
+
+    # =========================
+    # SUBCLASS BREAKDOWN
+    # =========================
+
+    subclass_result = get_subclass_summaries_from_df(df)
+    if subclass_result is None:
+        rules_path = get_config_path('subclass_rules.json')
+        if not rules_path.exists():
+            st.info(
+                f'Subclass breakdown is unavailable. Missing rules file at `{rules_path}`.'
+            )
+        else:
+            st.info('Subclass breakdown is unavailable for the current dataset.')
+    else:
+        render_all_subclass_charts(subclass_result['summary'], columns=2)
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
     # =========================
     # CUSTOMER QUOTES
     # =========================

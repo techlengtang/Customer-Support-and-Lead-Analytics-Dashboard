@@ -158,3 +158,24 @@ div[data-testid="stPlotlyChart"] {
 div[data-testid="stHorizontalBlock"] {
     gap: 1rem;
 }
+
+/* WORD CLOUD */
+
+[data-testid="stVerticalBlockBorderWrapper"] {
+    border-color: #ECEEF3 !important;
+    border-radius: 18px !important;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+    background: white;
+    padding: 0.35rem 0.5rem;
+}
+
+.wordcloud-sidecard-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1F2937;
+    margin: 0.25rem 0 0.5rem 0.35rem;
+}
+
+.section-spacer {
+    height: 12px;
+}

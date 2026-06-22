@@ -1,5 +1,10 @@
 import streamlit as st
+from pathlib import Path
 from streamlit_option_menu import option_menu
+
+from utils.paths import get_project_root, init_project_root
+
+init_project_root(Path(__file__).resolve().parent)
 
 from utils.load_data import load_data
 
@@ -8,7 +13,6 @@ from pages.data_explorer import show_data_explorer
 from pages.objection_analysis import show_objection_analysis
 from pages.lead_analytics import show_lead_analytics
 from pages.sentiment_analysis import show_sentiment_analysis
-from pages.nlp_insights import show_nlp_insights
 
 st.set_page_config(
     page_title="Explorer Analytics",
@@ -22,7 +26,7 @@ href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.m
 unsafe_allow_html=True)
 
 with open(
-    "assets/style.css"
+    get_project_root() / "assets" / "style.css"
 ) as f:
 
     st.markdown(
@@ -33,7 +37,7 @@ with open(
 df = load_data()
 
 with st.sidebar:
-    st.image("assets/logo.png", width=200)
+    st.image(str(get_project_root() / "assets" / "logo.png"), width=200)
     st.write("")
 
     selected = option_menu(
@@ -44,7 +48,6 @@ with st.sidebar:
             "Objection Analysis",
             "Lead Analytics",
             "Sentiment Analysis",
-            "NLP Insights",
             "Data Explorer"
         ],
 
@@ -53,7 +56,6 @@ with st.sidebar:
             "exclamation-triangle",
             "people",
             "emoji-smile",
-            "robot",
             "table"
         ],
 
@@ -96,9 +98,6 @@ elif selected == "Lead Analytics":
 
 elif selected == "Sentiment Analysis":
     show_sentiment_analysis(df)
-
-elif selected == "NLP Insights":
-    show_nlp_insights(df)
 
 elif selected == "Data Explorer":
     show_data_explorer(df)
