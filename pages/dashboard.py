@@ -1,6 +1,8 @@
 import streamlit as st
 import plotly.express as px
 
+from utils.load_data import load_uploaded_data
+
 ORANGE = [
     "#FED7AA",
     "#FDBA74",
@@ -23,6 +25,70 @@ def show_dashboard(df):
         Customer Support Intelligence Platform
     </div>
     """, unsafe_allow_html=True)
+
+    with st.container(border=True):
+
+        upload_col, status_col = st.columns([2, 1])
+
+        with upload_col:
+
+            uploaded_file = st.file_uploader(
+                "Upload dashboard data",
+                type=[
+                    "csv",
+                    "xlsx",
+                    "xls"
+                ],
+                help="Upload a CSV or Excel file with the same dashboard columns."
+            )
+
+        if uploaded_file is not None:
+
+            try:
+
+                df = load_uploaded_data(uploaded_file)
+                st.session_state["dashboard_df"] = df
+                st.session_state["dashboard_data_name"] = uploaded_file.name
+                st.success(
+                    f"Loaded {uploaded_file.name} with {len(df):,} records."
+                )
+
+            except Exception as exc:
+
+                st.error(
+                    f"Could not load this file. {exc}"
+                )
+
+        with status_col:
+
+            active_file = st.session_state.get(
+                "dashboard_data_name",
+                "Default dataset"
+            )
+
+            st.markdown(
+                f"""
+                <div class="upload-status">
+                    <div class="upload-status-label">Active Data</div>
+                    <div class="upload-status-value">{active_file}</div>
+                    <div class="upload-status-meta">{len(df):,} records</div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+            st.markdown(
+                "<div class='upload-reset-spacer'></div>",
+                unsafe_allow_html=True
+            )
+
+            if st.button("Use default data"):
+
+                st.session_state.pop("dashboard_df", None)
+                st.session_state.pop("dashboard_data_name", None)
+                st.rerun()
+
+    st.markdown("<br>", unsafe_allow_html=True)
 # ======================
 # FILTERS
 # ======================

@@ -34,7 +34,8 @@ with open(
         unsafe_allow_html=True
     )
 
-df = load_data()
+default_df = load_data()
+df = st.session_state.get("dashboard_df", default_df)
 
 with st.sidebar:
     st.image(str(get_project_root() / "assets" / "logo.png"), width=200)

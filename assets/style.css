@@ -103,6 +103,41 @@ section[data-testid="stSidebar"] > div {
     line-height: 1;
 }
 
+/* DATA UPLOAD */
+
+.upload-status {
+    background: #FFF7ED;
+    border: 1px solid #FED7AA;
+    border-radius: 14px;
+    padding: 14px 16px;
+    min-height: 88px;
+}
+
+.upload-status-label {
+    color: #F97316;
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+}
+
+.upload-status-value {
+    color: #1F2937;
+    font-size: 15px;
+    font-weight: 700;
+    word-break: break-word;
+}
+
+.upload-status-meta {
+    color: #6B7280;
+    font-size: 13px;
+    margin-top: 4px;
+}
+
+.upload-reset-spacer {
+    height: 12px;
+}
+
 /* CHART CARDS */
 
 .chart-card {
