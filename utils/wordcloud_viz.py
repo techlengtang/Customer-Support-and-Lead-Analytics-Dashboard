@@ -2,24 +2,42 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 
-from utils.nlp import _HAS_WORDCLOUD, WordCloud, build_word_frequencies, preprocess_text
+from utils.nlp import (
+    _HAS_WORDCLOUD,
+    WordCloud,
+    build_word_frequencies,
+    preprocess_text,
+)
 
 
-def _build_wordcloud_image(clean_text, width=920, height=400):
-    frequencies = dict(build_word_frequencies(clean_text, top_n=90))
+WORDCLOUD_CHART_HEIGHT = 520
+KEYWORD_CHART_HEIGHT = 380
+WORDCLOUD_IMAGE_WIDTH = 1400
+WORDCLOUD_IMAGE_HEIGHT = 1040
+
+
+def _build_wordcloud_image(clean_text, width=1400, height=1040):
+
+    frequencies = dict(
+        build_word_frequencies(
+            clean_text,
+            top_n=80
+        )
+    )
+
     if not frequencies:
         return None
 
     cloud = WordCloud(
         width=width,
         height=height,
-        background_color='#FFFFFF',
-        colormap='Oranges',
-        max_words=90,
-        prefer_horizontal=0.82,
-        min_font_size=14,
-        max_font_size=96,
-        margin=14,
+        background_color="white",
+        colormap="Oranges",
+        max_words=80,
+        prefer_horizontal=0.9,
+        min_font_size=18,
+        max_font_size=150,
+        margin=6,
         random_state=42,
     ).generate_from_frequencies(frequencies)
 
@@ -27,40 +45,65 @@ def _build_wordcloud_image(clean_text, width=920, height=400):
 
 
 def _keyword_bar_chart(keyword_df):
+
     fig = px.bar(
         keyword_df,
-        x='Count',
-        y='Keyword',
-        orientation='h',
-        color='Count',
-        color_continuous_scale=['#FED7AA', '#FB923C', '#EA580C'],
-        text='Count',
+        x="Count",
+        y="Keyword",
+        orientation="h",
+        color="Count",
+        text="Count",
+        color_continuous_scale=[
+            "#FED7AA",
+            "#FB923C",
+            "#EA580C"
+        ],
     )
+
     fig.update_traces(
-        texttemplate='%{x}',
-        textposition='outside',
-        textfont=dict(size=11, color='#6B7280'),
+        texttemplate="%{x}",
+        textposition="outside",
         cliponaxis=False,
         marker_line_width=0,
     )
+
     fig.update_layout(
-        height=max(320, 34 * len(keyword_df)),
-        template='plotly_white',
-        paper_bgcolor='white',
-        plot_bgcolor='white',
+        height=KEYWORD_CHART_HEIGHT,
+        autosize=False,
+        template="plotly_white",
+        paper_bgcolor="white",
+        plot_bgcolor="white",
         coloraxis_showscale=False,
-        margin=dict(l=8, r=24, t=8, b=8),
-        font=dict(family='Inter', size=12, color='#374151'),
-        xaxis_title='',
-        yaxis_title='',
+        margin=dict(
+            l=20,
+            r=50,
+            t=5,
+            b=5
+        ),
+        xaxis_title="",
+        yaxis_title="",
+        font=dict(
+            size=13
+        ),
     )
-    fig.update_yaxes(categoryorder='total ascending')
-    fig.update_xaxes(showgrid=True, gridcolor='#F3F4F6', zeroline=False)
+
+    fig.update_yaxes(
+        categoryorder="total ascending"
+    )
+
+    fig.update_xaxes(
+        showgrid=True,
+        gridcolor="#F3F4F6"
+    )
+
     return fig
 
 
-def render_objection_wordcloud_section(df, text_column='Quote_English'):
-    """Render a styled word cloud with top keywords for objection quotes."""
+def render_objection_wordcloud_section(
+    df,
+    text_column="Quote_English"
+):
+
     if text_column not in df.columns:
         return
 
@@ -71,10 +114,11 @@ def render_objection_wordcloud_section(df, text_column='Quote_English'):
         .map(preprocess_text)
         .str.strip()
     )
-    clean_text = clean_text[clean_text != '']
+
+    clean_text = clean_text[clean_text != ""]
 
     if clean_text.empty:
-        st.info('No objection text available for the word cloud.')
+        st.info("No objection text available.")
         return
 
     st.markdown(
@@ -85,36 +129,81 @@ def render_objection_wordcloud_section(df, text_column='Quote_English'):
         """,
         unsafe_allow_html=True,
     )
+
     st.caption(
-        f'Visual summary of the most common words across {len(clean_text):,} customer objection quotes.'
+        f"Visual summary of the most common words across {len(clean_text):,} customer objection quotes."
     )
 
-    keywords = build_word_frequencies(clean_text, top_n=12)
-    keyword_df = pd.DataFrame(keywords, columns=['Keyword', 'Count'])
+    keywords = build_word_frequencies(
+        clean_text,
+        top_n=12
+    )
 
-    cloud_col, keywords_col = st.columns([1.45, 1], gap='large')
+    keyword_df = pd.DataFrame(
+        keywords,
+        columns=[
+            "Keyword",
+            "Count"
+        ]
+    )
 
-    with cloud_col:
-        with st.container(border=True):
-            if _HAS_WORDCLOUD:
-                image = _build_wordcloud_image(clean_text)
-                if image is not None:
-                    st.image(image, use_container_width=True)
-                else:
-                    st.warning('Not enough text to generate a word cloud.')
+    left, right = st.columns(2)
+
+    with left:
+
+        st.markdown(
+            """
+            <div class='chart-title'>
+                Word Cloud
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+        if _HAS_WORDCLOUD:
+
+            image = _build_wordcloud_image(
+                clean_text,
+                width=WORDCLOUD_IMAGE_WIDTH,
+                height=WORDCLOUD_IMAGE_HEIGHT
+            )
+
+            if image is not None:
+
+                st.image(
+                    image,
+                    use_container_width=True
+                )
+
             else:
-                st.warning('Install the wordcloud package to render this visualization.')
 
-    with keywords_col:
-        with st.container(border=True):
-            st.markdown(
-                "<div class='wordcloud-sidecard-title'>Top Keywords</div>",
-                unsafe_allow_html=True,
-            )
-            st.plotly_chart(
-                _keyword_bar_chart(keyword_df),
-                use_container_width=True,
-                config={'displayModeBar': False},
+                st.warning(
+                    "Not enough text to generate word cloud."
+                )
+
+        else:
+
+            st.warning(
+                "Install wordcloud package."
             )
 
-    st.markdown('<div class="section-spacer"></div>', unsafe_allow_html=True)
+    with right:
+
+        st.markdown(
+            """
+            <div class='chart-title'>
+                Top Keywords
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+        st.plotly_chart(
+            _keyword_bar_chart(keyword_df),
+            use_container_width=True,
+            config={
+                "displayModeBar": False
+            }
+        )
+
+    st.markdown("<br>", unsafe_allow_html=True)
