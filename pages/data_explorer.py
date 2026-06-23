@@ -12,7 +12,7 @@ def show_data_explorer(df):
     Data Explorer
     </div>
     <div class='page-subtitle'>
-    Browse raw records with NLP-enriched sentiment, subclass, and topic fields
+    Browse raw records with NLP-enriched sentiment and subclass fields
     </div>
     """, unsafe_allow_html=True)
 
@@ -41,23 +41,13 @@ def show_data_explorer(df):
             subclass_filter = []
 
     with filter_col3:
-        if "NLP_Topic" in working_df.columns:
-            topic_filter = st.multiselect(
-                "NLP Topic",
-                options=sorted(working_df["NLP_Topic"].dropna().unique()),
-                default=sorted(working_df["NLP_Topic"].dropna().unique()),
-            )
-        else:
-            topic_filter = []
+        st.write("")
 
     if sentiment_filter and "Sentiment" in working_df.columns:
         working_df = working_df[working_df["Sentiment"].isin(sentiment_filter)]
 
     if subclass_filter and "Subclass" in working_df.columns:
         working_df = working_df[working_df["Subclass"].isin(subclass_filter)]
-
-    if topic_filter and "NLP_Topic" in working_df.columns:
-        working_df = working_df[working_df["NLP_Topic"].isin(topic_filter)]
 
     nlp_meta = st.session_state.get(NLP_META_KEY, {})
     if nlp_meta.get("classifier_accuracy") is not None:
@@ -70,14 +60,14 @@ def show_data_explorer(df):
         "Sentiment",
         "Sentiment_Score",
         "Subclass",
-        "NLP_Topic",
-        "NLP_Topic_Label",
         "NLP_Predicted_Objection",
         "NLP_Prediction_Match",
     ]
+    hidden_columns = {"NLP_Topic", "NLP_Topic_Label"}
     leading_columns = [column for column in nlp_columns if column in working_df.columns]
     remaining_columns = [
-        column for column in working_df.columns if column not in leading_columns
+        column for column in working_df.columns
+        if column not in leading_columns and column not in hidden_columns
     ]
 
     st.dataframe(

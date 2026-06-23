@@ -24,7 +24,7 @@ def show_sentiment_analysis(df):
     </div>
 
     <div class='page-subtitle'>
-        NLP-powered sentiment, topics, and language patterns from customer quotes
+        NLP-powered sentiment and language patterns from customer quotes
     </div>
     """, unsafe_allow_html=True)
 
@@ -122,7 +122,7 @@ def show_sentiment_analysis(df):
     with right:
         st.markdown("""
         <div class='chart-title'>
-            Top Complaint Topics by Sentiment
+            Top Objection Types by Sentiment
         </div>
         """, unsafe_allow_html=True)
 
@@ -143,7 +143,7 @@ def show_sentiment_analysis(df):
         )
 
         fig.update_layout(
-            height=420,
+            height=400,
             template="plotly_white",
             paper_bgcolor="white",
             plot_bgcolor="white",
@@ -156,58 +156,6 @@ def show_sentiment_analysis(df):
         st.plotly_chart(fig, width="stretch", config={"displayModeBar": False})
 
     st.markdown("<br>", unsafe_allow_html=True)
-
-    if "NLP_Topic" in df_sentiment.columns:
-        topic_left, topic_right = st.columns(2)
-
-        with topic_left:
-            st.markdown("""
-            <div class='chart-title'>
-                NLP Topic Clusters
-            </div>
-            """, unsafe_allow_html=True)
-
-            topic_counts = (
-                df_sentiment["NLP_Topic"]
-                .value_counts()
-                .reset_index()
-            )
-            topic_counts.columns = ["Topic", "Count"]
-            topic_counts = topic_counts[topic_counts["Topic"] != "Unassigned"]
-
-            fig = px.bar(
-                topic_counts,
-                x="Count",
-                y="Topic",
-                orientation="h",
-                color="Count",
-                color_continuous_scale="Oranges",
-                text="Count",
-            )
-            fig.update_layout(
-                height=380,
-                template="plotly_white",
-                coloraxis_showscale=False,
-                margin=dict(l=10, r=20, t=10, b=10),
-            )
-            st.plotly_chart(fig, width="stretch", config={"displayModeBar": False})
-
-        with topic_right:
-            st.markdown("""
-            <div class='chart-title'>
-                Topic Term Summary
-            </div>
-            """, unsafe_allow_html=True)
-
-            topic_terms = nlp_meta.get("topic_terms", [])
-            if topic_terms:
-                st.dataframe(
-                    pd.DataFrame(topic_terms),
-                    use_container_width=True,
-                    hide_index=True,
-                )
-            else:
-                st.info("Not enough text to build topic terms.")
 
     st.markdown("<br>", unsafe_allow_html=True)
 
@@ -287,7 +235,6 @@ def show_sentiment_analysis(df):
         "Sentiment_Score",
         "Objection Type",
         "Subclass",
-        "NLP_Topic_Label",
     ]
     display_columns = [column for column in display_columns if column in df_sentiment.columns]
 

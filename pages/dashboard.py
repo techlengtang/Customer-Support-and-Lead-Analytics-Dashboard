@@ -290,63 +290,33 @@ def show_dashboard(df):
         </div>
         """, unsafe_allow_html=True)
 
-        nlp_left, nlp_right = st.columns(2)
+        sentiment_counts = (
+            filtered_df["Sentiment"]
+            .value_counts()
+            .reset_index()
+        )
+        sentiment_counts.columns = ["Sentiment", "Count"]
 
-        with nlp_left:
-            sentiment_counts = (
-                filtered_df["Sentiment"]
-                .value_counts()
-                .reset_index()
-            )
-            sentiment_counts.columns = ["Sentiment", "Count"]
-
-            fig = px.pie(
-                sentiment_counts,
-                names="Sentiment",
-                values="Count",
-                hole=0.55,
-                color="Sentiment",
-                color_discrete_map={
-                    "Positive": "#7BCFA1",
-                    "Neutral": "#F6C56F",
-                    "Negative": "#F28B82",
-                },
-            )
-            fig.update_layout(
-                height=320,
-                template="plotly_white",
-                paper_bgcolor="white",
-                plot_bgcolor="white",
-                showlegend=True,
-            )
-            st.plotly_chart(fig, width="stretch", config={"displayModeBar": False})
-
-        with nlp_right:
-            if "NLP_Topic" in filtered_df.columns:
-                topic_counts = (
-                    filtered_df["NLP_Topic"]
-                    .value_counts()
-                    .reset_index()
-                )
-                topic_counts.columns = ["Topic", "Count"]
-                topic_counts = topic_counts[topic_counts["Topic"] != "Unassigned"]
-
-                fig = px.bar(
-                    topic_counts,
-                    x="Count",
-                    y="Topic",
-                    orientation="h",
-                    color="Count",
-                    color_continuous_scale="Oranges",
-                    text="Count",
-                )
-                fig.update_layout(
-                    height=320,
-                    template="plotly_white",
-                    coloraxis_showscale=False,
-                    margin=dict(l=10, r=20, t=10, b=10),
-                )
-                st.plotly_chart(fig, width="stretch", config={"displayModeBar": False})
+        fig = px.pie(
+            sentiment_counts,
+            names="Sentiment",
+            values="Count",
+            hole=0.55,
+            color="Sentiment",
+            color_discrete_map={
+                "Positive": "#7BCFA1",
+                "Neutral": "#F6C56F",
+                "Negative": "#F28B82",
+            },
+        )
+        fig.update_layout(
+            height=320,
+            template="plotly_white",
+            paper_bgcolor="white",
+            plot_bgcolor="white",
+            showlegend=True,
+        )
+        st.plotly_chart(fig, width="stretch", config={"displayModeBar": False})
 
         st.markdown("<br>", unsafe_allow_html=True)
     # ======================
