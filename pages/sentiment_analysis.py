@@ -1,28 +1,22 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-import numpy as np
+
+from utils.nlp import build_word_frequencies, preprocess_text
+from utils.nlp_enrichment import NLP_META_KEY
+
+
+SENTIMENT_COLORS = {
+    "Positive": "#7BCFA1",
+    "Neutral": "#F6C56F",
+    "Negative": "#F28B82",
+}
 
 
 def show_sentiment_analysis(df):
 
-    # =====================================
-    # TEMP MOCK DATA
-    # =====================================
-
-    np.random.seed(42)
-
+    nlp_meta = st.session_state.get(NLP_META_KEY, {})
     df_sentiment = df.copy()
-
-    df_sentiment["Sentiment"] = np.random.choice(
-        ["Positive", "Neutral", "Negative"],
-        size=len(df_sentiment),
-        p=[0.25, 0.50, 0.25]
-    )
-
-    # =====================================
-    # PAGE HEADER
-    # =====================================
 
     st.markdown("""
     <div class='page-title'>
@@ -30,37 +24,22 @@ def show_sentiment_analysis(df):
     </div>
 
     <div class='page-subtitle'>
-        NLP-powered customer sentiment monitoring
+        NLP-powered sentiment, topics, and language patterns from customer quotes
     </div>
     """, unsafe_allow_html=True)
 
-    # =====================================
-    # KPI CARDS
-    # =====================================
+    if "Sentiment" not in df_sentiment.columns:
+        st.warning("NLP sentiment columns are not available for this dataset.")
+        return
 
     total = len(df_sentiment)
+    positive = len(df_sentiment[df_sentiment["Sentiment"] == "Positive"])
+    neutral = len(df_sentiment[df_sentiment["Sentiment"] == "Neutral"])
+    negative = len(df_sentiment[df_sentiment["Sentiment"] == "Negative"])
 
-    positive = len(
-        df_sentiment[
-            df_sentiment["Sentiment"] == "Positive"
-        ]
-    )
-
-    neutral = len(
-        df_sentiment[
-            df_sentiment["Sentiment"] == "Neutral"
-        ]
-    )
-
-    negative = len(
-        df_sentiment[
-            df_sentiment["Sentiment"] == "Negative"
-        ]
-    )
-
-    positive_pct = positive / total * 100
-    neutral_pct = neutral / total * 100
-    negative_pct = negative / total * 100
+    positive_pct = positive / total * 100 if total else 0
+    neutral_pct = neutral / total * 100 if total else 0
+    negative_pct = negative / total * 100 if total else 0
 
     c1, c2, c3, c4 = st.columns(4)
 
@@ -98,14 +77,9 @@ def show_sentiment_analysis(df):
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # =====================================
-    # DONUT + TOP TOPICS
-    # =====================================
-
     left, right = st.columns(2)
 
     with left:
-
         st.markdown("""
         <div class='chart-title'>
             Sentiment Distribution
@@ -117,11 +91,7 @@ def show_sentiment_analysis(df):
             .value_counts()
             .reset_index()
         )
-
-        sentiment.columns = [
-            "Sentiment",
-            "Count"
-        ]
+        sentiment.columns = ["Sentiment", "Count"]
 
         fig = px.pie(
             sentiment,
@@ -129,11 +99,7 @@ def show_sentiment_analysis(df):
             values="Count",
             hole=0.60,
             color="Sentiment",
-            color_discrete_map={
-                "Positive": "#7BCFA1",
-                "Neutral": "#F6C56F",
-                "Negative": "#F28B82"
-            }
+            color_discrete_map=SENTIMENT_COLORS,
         )
 
         fig.update_layout(
@@ -142,26 +108,18 @@ def show_sentiment_analysis(df):
             paper_bgcolor="white",
             plot_bgcolor="white",
             legend_orientation="h",
-            legend_y=-0.15
+            legend_y=-0.15,
         )
 
         fig.update_traces(
             textinfo="percent",
             textposition="outside",
-            textfont=dict(
-                color="#1F2937",
-                size=15
-            )
+            textfont=dict(color="#1F2937", size=15),
         )
 
-        st.plotly_chart(
-            fig,
-            width="stretch",
-            config={"displayModeBar": False}
-        )
+        st.plotly_chart(fig, width="stretch", config={"displayModeBar": False})
 
     with right:
-
         st.markdown("""
         <div class='chart-title'>
             Top Complaint Topics by Sentiment
@@ -170,17 +128,10 @@ def show_sentiment_analysis(df):
 
         topics = pd.crosstab(
             df_sentiment["Objection Type"],
-            df_sentiment["Sentiment"]
+            df_sentiment["Sentiment"],
         )
-
         topics["Total"] = topics.sum(axis=1)
-
-        topics = (
-            topics
-            .sort_values("Total", ascending=False)
-            .head(8)
-            .reset_index()
-        )
+        topics = topics.sort_values("Total", ascending=False).head(8).reset_index()
 
         fig = px.bar(
             topics,
@@ -188,11 +139,7 @@ def show_sentiment_analysis(df):
             x=["Negative", "Neutral", "Positive"],
             orientation="h",
             barmode="stack",
-            color_discrete_map={
-                "Positive": "#7BCFA1",
-                "Neutral": "#F6C56F",
-                "Negative": "#F28B82"
-            }
+            color_discrete_map=SENTIMENT_COLORS,
         )
 
         fig.update_layout(
@@ -200,35 +147,69 @@ def show_sentiment_analysis(df):
             template="plotly_white",
             paper_bgcolor="white",
             plot_bgcolor="white",
-
-            legend=dict(
-                orientation="h",
-                y=1.10,
-                x=0.5,
-                xanchor="center"
-            ),
-
+            legend=dict(orientation="h", y=1.10, x=0.5, xanchor="center"),
             xaxis_title="Number of Comments",
             yaxis_title="",
-            margin=dict(
-                l=10,
-                r=10,
-                t=20,
-                b=20
-            )
+            margin=dict(l=10, r=10, t=20, b=20),
         )
 
-        st.plotly_chart(
-            fig,
-            width="stretch",
-            config={"displayModeBar": False}
-        )
+        st.plotly_chart(fig, width="stretch", config={"displayModeBar": False})
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # =====================================
-    # SENTIMENT TREND
-    # =====================================
+    if "NLP_Topic" in df_sentiment.columns:
+        topic_left, topic_right = st.columns(2)
+
+        with topic_left:
+            st.markdown("""
+            <div class='chart-title'>
+                NLP Topic Clusters
+            </div>
+            """, unsafe_allow_html=True)
+
+            topic_counts = (
+                df_sentiment["NLP_Topic"]
+                .value_counts()
+                .reset_index()
+            )
+            topic_counts.columns = ["Topic", "Count"]
+            topic_counts = topic_counts[topic_counts["Topic"] != "Unassigned"]
+
+            fig = px.bar(
+                topic_counts,
+                x="Count",
+                y="Topic",
+                orientation="h",
+                color="Count",
+                color_continuous_scale="Oranges",
+                text="Count",
+            )
+            fig.update_layout(
+                height=380,
+                template="plotly_white",
+                coloraxis_showscale=False,
+                margin=dict(l=10, r=20, t=10, b=10),
+            )
+            st.plotly_chart(fig, width="stretch", config={"displayModeBar": False})
+
+        with topic_right:
+            st.markdown("""
+            <div class='chart-title'>
+                Topic Term Summary
+            </div>
+            """, unsafe_allow_html=True)
+
+            topic_terms = nlp_meta.get("topic_terms", [])
+            if topic_terms:
+                st.dataframe(
+                    pd.DataFrame(topic_terms),
+                    use_container_width=True,
+                    hide_index=True,
+                )
+            else:
+                st.info("Not enough text to build topic terms.")
+
+    st.markdown("<br>", unsafe_allow_html=True)
 
     st.markdown("""
     <div class='chart-title'>
@@ -239,34 +220,24 @@ def show_sentiment_analysis(df):
     trend = (
         df_sentiment.groupby(
             [
-                pd.Grouper(
-                    key="First Contact Date",
-                    freq="M"
-                ),
-                "Sentiment"
+                pd.Grouper(key="First Contact Date", freq="ME"),
+                "Sentiment",
             ]
         )
         .size()
         .reset_index(name="Count")
     )
 
-    # Show only from Jan 2025 onwards
-    trend = trend[
-        trend["First Contact Date"] >= "2025-01-01"
-    ]
+    trend = trend[trend["First Contact Date"] >= "2025-01-01"]
 
     fig = px.area(
         trend,
         x="First Contact Date",
         y="Count",
         color="Sentiment",
-        color_discrete_map={
-            "Positive": "#7BCFA1",
-            "Neutral": "#F6C56F",
-            "Negative": "#F28B82"
-        }
+        color_discrete_map=SENTIMENT_COLORS,
     )
-    
+
     fig.update_layout(
         height=450,
         template="plotly_white",
@@ -275,35 +246,52 @@ def show_sentiment_analysis(df):
         legend_orientation="h",
         legend_y=-0.2,
         xaxis_title="Month",
-        yaxis_title="Comments"
+        yaxis_title="Comments",
     )
 
-    
-    st.plotly_chart(
-        fig,
-        width="stretch",
-        config={"displayModeBar": False}
-    )
+    st.plotly_chart(fig, width="stretch", config={"displayModeBar": False})
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # =====================================
-    # CUSTOMER COMMENTS
-    # =====================================
-
     st.markdown("""
     <div class='chart-title'>
-        Customer Comments
+        Negative Language Signals
     </div>
     """, unsafe_allow_html=True)
 
+    negative_text = df_sentiment.loc[
+        df_sentiment["Sentiment"] == "Negative",
+        "Quote_English",
+    ].dropna().astype(str).map(preprocess_text)
+    negative_text = negative_text[negative_text.str.strip() != ""]
+
+    if not negative_text.empty:
+        negative_keywords = build_word_frequencies(negative_text, top_n=12)
+        st.dataframe(
+            pd.DataFrame(negative_keywords, columns=["Keyword", "Count"]),
+            use_container_width=True,
+            hide_index=True,
+        )
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    st.markdown("""
+    <div class='chart-title'>
+        NLP-Enriched Customer Comments
+    </div>
+    """, unsafe_allow_html=True)
+
+    display_columns = [
+        "Quote_English",
+        "Sentiment",
+        "Sentiment_Score",
+        "Objection Type",
+        "Subclass",
+        "NLP_Topic_Label",
+    ]
+    display_columns = [column for column in display_columns if column in df_sentiment.columns]
+
     st.dataframe(
-        df_sentiment[
-            [
-                "Quote_English",
-                "Sentiment",
-                "Objection Type"
-            ]
-        ],
-        width="stretch"
+        df_sentiment[display_columns],
+        width="stretch",
     )

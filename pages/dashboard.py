@@ -2,6 +2,7 @@ import streamlit as st
 import plotly.express as px
 
 from utils.load_data import load_uploaded_data
+from utils.nlp_enrichment import NLP_META_KEY
 
 ORANGE = [
     "#FED7AA",
@@ -22,7 +23,7 @@ def show_dashboard(df):
     </div>
 
     <div class='page-subtitle'>
-        Customer Support Intelligence Platform
+        Customer Support Intelligence Platform powered by NLP
     </div>
     """, unsafe_allow_html=True)
 
@@ -214,11 +215,43 @@ def show_dashboard(df):
             .idxmax()
         )
 
+        dominant_sentiment = "-"
+        negative_pct = 0
+        top_subclass = "-"
+        if "Sentiment" in filtered_df.columns:
+            dominant_sentiment = (
+                filtered_df["Sentiment"]
+                .value_counts()
+                .idxmax()
+            )
+            negative_pct = (
+                len(filtered_df[filtered_df["Sentiment"] == "Negative"])
+                / len(filtered_df)
+                * 100
+            )
+        if "Subclass" in filtered_df.columns:
+            top_subclass = (
+                filtered_df["Subclass"]
+                .value_counts()
+                .idxmax()
+            )
+
     else:
 
         top_objection = "-"
         top_platform = "-"
         top_lead = "-"
+        dominant_sentiment = "-"
+        negative_pct = 0
+        top_subclass = "-"
+
+    nlp_meta = st.session_state.get(NLP_META_KEY, {})
+    classifier_accuracy = nlp_meta.get("classifier_accuracy")
+    classifier_line = (
+        f"• NLP classifier accuracy: <b>{classifier_accuracy:.0%}</b><br>"
+        if classifier_accuracy is not None
+        else ""
+    )
 
     st.markdown(
         f"""
@@ -234,6 +267,14 @@ def show_dashboard(df):
         • Most common lead quality:
         <b>{top_lead}</b><br>
 
+        • Dominant customer sentiment:
+        <b>{dominant_sentiment}</b> ({negative_pct:.1f}% negative)<br>
+
+        • Top NLP subclass signal:
+        <b>{top_subclass}</b><br>
+
+        {classifier_line}
+
         • Total records analyzed:
         <b>{len(filtered_df)}</b>
 
@@ -241,6 +282,73 @@ def show_dashboard(df):
         """,
         unsafe_allow_html=True
     )
+
+    if "Sentiment" in filtered_df.columns and not filtered_df.empty:
+        st.markdown("""
+        <div class="chart-title">
+            NLP Sentiment Overview
+        </div>
+        """, unsafe_allow_html=True)
+
+        nlp_left, nlp_right = st.columns(2)
+
+        with nlp_left:
+            sentiment_counts = (
+                filtered_df["Sentiment"]
+                .value_counts()
+                .reset_index()
+            )
+            sentiment_counts.columns = ["Sentiment", "Count"]
+
+            fig = px.pie(
+                sentiment_counts,
+                names="Sentiment",
+                values="Count",
+                hole=0.55,
+                color="Sentiment",
+                color_discrete_map={
+                    "Positive": "#7BCFA1",
+                    "Neutral": "#F6C56F",
+                    "Negative": "#F28B82",
+                },
+            )
+            fig.update_layout(
+                height=320,
+                template="plotly_white",
+                paper_bgcolor="white",
+                plot_bgcolor="white",
+                showlegend=True,
+            )
+            st.plotly_chart(fig, width="stretch", config={"displayModeBar": False})
+
+        with nlp_right:
+            if "NLP_Topic" in filtered_df.columns:
+                topic_counts = (
+                    filtered_df["NLP_Topic"]
+                    .value_counts()
+                    .reset_index()
+                )
+                topic_counts.columns = ["Topic", "Count"]
+                topic_counts = topic_counts[topic_counts["Topic"] != "Unassigned"]
+
+                fig = px.bar(
+                    topic_counts,
+                    x="Count",
+                    y="Topic",
+                    orientation="h",
+                    color="Count",
+                    color_continuous_scale="Oranges",
+                    text="Count",
+                )
+                fig.update_layout(
+                    height=320,
+                    template="plotly_white",
+                    coloraxis_showscale=False,
+                    margin=dict(l=10, r=20, t=10, b=10),
+                )
+                st.plotly_chart(fig, width="stretch", config={"displayModeBar": False})
+
+        st.markdown("<br>", unsafe_allow_html=True)
     # ======================
     # MONTHLY TREND
     # ======================

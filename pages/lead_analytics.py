@@ -8,7 +8,7 @@ def show_lead_analytics(df):
     st.markdown("""
     <div class='page-title'>Lead Analytics</div>
     <div class='page-subtitle'>
-        Analyze lead quality, conversion performance, and acquisition effectiveness
+        Analyze lead quality, conversion performance, and NLP language signals
     </div>
     """, unsafe_allow_html=True)
 
@@ -455,3 +455,84 @@ def show_lead_analytics(df):
         width="stretch",
         config={"displayModeBar": False}
     )
+
+    if "Sentiment" in df.columns and "Lead Quality" in df.columns:
+        st.markdown("<br>", unsafe_allow_html=True)
+
+        st.markdown("""
+        <div class='chart-title'>
+            NLP Sentiment by Lead Quality
+        </div>
+        """, unsafe_allow_html=True)
+
+        sentiment_lead = pd.crosstab(
+            df["Lead Quality"],
+            df["Sentiment"],
+        ).reset_index()
+
+        fig = px.bar(
+            sentiment_lead,
+            x="Lead Quality",
+            y=["Negative", "Neutral", "Positive"],
+            barmode="stack",
+            color_discrete_map={
+                "Positive": "#7BCFA1",
+                "Neutral": "#F6C56F",
+                "Negative": "#F28B82",
+            },
+        )
+        fig.update_layout(
+            height=420,
+            template="plotly_white",
+            paper_bgcolor="white",
+            plot_bgcolor="white",
+            xaxis_title="",
+            yaxis_title="Quotes",
+            legend=dict(orientation="h", y=-0.2, x=0.5, xanchor="center"),
+        )
+        st.plotly_chart(fig, width="stretch", config={"displayModeBar": False})
+
+    if "Subclass" in df.columns:
+        st.markdown("<br>", unsafe_allow_html=True)
+
+        st.markdown("""
+        <div class='chart-title'>
+            Top NLP Subclasses in Converted vs Lost Leads
+        </div>
+        """, unsafe_allow_html=True)
+
+        subclass_compare = df[df["Lead Quality"].isin(["Converted", "Lost"])].copy()
+        if not subclass_compare.empty:
+            subclass_counts = (
+                subclass_compare.groupby(["Lead Quality", "Subclass"])
+                .size()
+                .reset_index(name="Count")
+            )
+            top_subclasses = (
+                subclass_counts.groupby("Subclass")["Count"]
+                .sum()
+                .nlargest(8)
+                .index
+            )
+            subclass_counts = subclass_counts[
+                subclass_counts["Subclass"].isin(top_subclasses)
+            ]
+
+            fig = px.bar(
+                subclass_counts,
+                x="Subclass",
+                y="Count",
+                color="Lead Quality",
+                barmode="group",
+                color_discrete_sequence=px.colors.qualitative.Set2,
+            )
+            fig.update_layout(
+                height=420,
+                template="plotly_white",
+                paper_bgcolor="white",
+                plot_bgcolor="white",
+                xaxis_title="",
+                yaxis_title="Quotes",
+                legend=dict(orientation="h", y=-0.25, x=0.5, xanchor="center"),
+            )
+            st.plotly_chart(fig, width="stretch", config={"displayModeBar": False})

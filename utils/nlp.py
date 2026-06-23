@@ -108,6 +108,67 @@ def build_topic_model(texts, n_topics=5, n_top_words=7):
     return topic_terms, distribution
 
 
+def assign_topics_to_texts(texts, n_topics=5, n_top_words=4):
+    """Assign an LDA topic label to each text."""
+    texts = list(texts)
+    assignments = ['Unassigned'] * len(texts)
+    labels = ['Unassigned'] * len(texts)
+
+    cleaned = [preprocess_text(text) for text in texts]
+    valid_pairs = [(index, text) for index, text in enumerate(cleaned) if text]
+
+    if len(valid_pairs) < 15:
+        return assignments, labels, [], []
+
+    valid_indices = [pair[0] for pair in valid_pairs]
+    valid_texts = [pair[1] for pair in valid_pairs]
+    topic_count = min(n_topics, max(2, len(valid_texts) // 25))
+
+    vectorizer = TfidfVectorizer(
+        stop_words=list(STOPWORDS),
+        max_features=2000,
+        ngram_range=(1, 2),
+        min_df=3,
+    )
+    matrix = vectorizer.fit_transform(valid_texts)
+    lda = LatentDirichletAllocation(
+        n_components=topic_count,
+        random_state=42,
+        learning_method='batch',
+    )
+    lda.fit(matrix)
+
+    terms = vectorizer.get_feature_names_out()
+    topic_labels_map = {}
+    topic_terms = []
+    for topic_id, topic in enumerate(lda.components_):
+        top_indices = topic.argsort()[:-n_top_words - 1:-1]
+        top_terms = ", ".join(terms[index] for index in top_indices)
+        topic_labels_map[topic_id] = f"Topic {topic_id + 1}: {top_terms}"
+        topic_terms.append(
+            {
+                'Topic': f"Topic {topic_id + 1}",
+                'Top Terms': top_terms,
+            }
+        )
+
+    topic_ids = np.argmax(lda.transform(matrix), axis=1)
+    topic_counts = Counter(topic_ids)
+    distribution = [
+        {
+            'Topic': f"Topic {topic_id + 1}",
+            'Count': topic_counts.get(topic_id, 0),
+        }
+        for topic_id in range(topic_count)
+    ]
+
+    for row_index, topic_id in zip(valid_indices, topic_ids):
+        assignments[row_index] = f"Topic {topic_id + 1}"
+        labels[row_index] = topic_labels_map[topic_id]
+
+    return assignments, labels, topic_terms, distribution
+
+
 def train_objection_classifier(texts, labels, top_labels=8):
     df = (
         pd.DataFrame({'text': texts, 'label': labels})

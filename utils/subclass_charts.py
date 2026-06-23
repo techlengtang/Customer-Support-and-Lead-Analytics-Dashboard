@@ -23,7 +23,30 @@ def get_subclass_summaries_from_df(
     label_column='Objection Type',
 ):
     """Assign rule-based subclasses and return per-class count summaries."""
-    if df.empty or text_column not in df.columns or label_column not in df.columns:
+    if df.empty or label_column not in df.columns:
+        return None
+
+    if 'Subclass' in df.columns:
+        working = df[[text_column, label_column, 'Subclass']].dropna(subset=[label_column, 'Subclass'])
+        if working.empty:
+            return None
+
+        summary = {}
+        for class_name, group in working.groupby(label_column):
+            counts = (
+                group['Subclass']
+                .value_counts()
+                .reset_index(name='count')
+                .rename(columns={'Subclass': 'subclass'})
+            )
+            summary[class_name] = counts.to_dict('records')
+
+        assignments = working.rename(
+            columns={label_column: 'class', 'Subclass': 'subclass', text_column: 'text'}
+        )
+        return {'assignments': assignments, 'summary': summary}
+
+    if text_column not in df.columns:
         return None
 
     rules = _load_subclass_rules()

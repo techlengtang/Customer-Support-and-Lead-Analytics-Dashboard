@@ -8,6 +8,8 @@ init_project_root(Path(__file__).resolve().parent)
 
 from utils.load_data import load_data
 
+from utils.nlp_enrichment import NLP_META_KEY, get_enriched_dataframe
+
 from pages.dashboard import show_dashboard
 from pages.data_explorer import show_data_explorer
 from pages.objection_analysis import show_objection_analysis
@@ -35,7 +37,9 @@ with open(
     )
 
 default_df = load_data()
-df = st.session_state.get("dashboard_df", default_df)
+raw_df = st.session_state.get("dashboard_df", default_df)
+df, nlp_meta = get_enriched_dataframe(raw_df)
+st.session_state[NLP_META_KEY] = nlp_meta
 
 with st.sidebar:
     st.image(str(get_project_root() / "assets" / "logo.png"), width=200)

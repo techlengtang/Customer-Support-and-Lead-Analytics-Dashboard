@@ -18,7 +18,7 @@ def show_objection_analysis(df):
     st.markdown("""
     <div class='page-title'>Objection Analysis</div>
     <div class='page-subtitle'>
-        Deep dive into customer objections and concerns
+        Deep dive into customer objections, NLP language patterns, and subclasses
     </div>
     """, unsafe_allow_html=True)
 
@@ -242,13 +242,16 @@ def show_objection_analysis(df):
     </div>
     """, unsafe_allow_html=True)
 
+    quote_columns = [
+        "Objection Type",
+        "Subclass",
+        "Sentiment",
+        "Quote_English",
+        "Lead Quality",
+    ]
+    quote_columns = [column for column in quote_columns if column in df.columns]
+
     st.dataframe(
-        df[
-            [
-                "Objection Type",
-                "Quote_English",
-                "Lead Quality"
-            ]
-        ],
+        df[quote_columns],
         width="stretch"
     )
