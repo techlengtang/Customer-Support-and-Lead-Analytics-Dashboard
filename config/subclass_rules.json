@@ -1,212 +1,164 @@
 {
   "metadata": {
-    "description": "Rule-based subclass definitions for each of the 10 objection classes",
-    "dataset": "cleaned_customer_objections_2000_rows.csv",
-    "text_column": "Quote (English)",
+    "description": "Customer objection clusters — 8 objection types, 31 clusters",
+    "dataset": "Customer Objection Data.csv",
+    "text_column": "Quote_English",
     "label_column": "Objection Type"
   },
   "classes": {
-    "Documentation Concern": {
+    "Documentation": {
       "subclasses": {
-        "Bank Statement": {
-          "exact_phrases": ["bank statement", "bank account", "account statement", "no bank", "don't have bank", "aba account", "aba bank"],
-          "keywords": ["bank", "statement", "account", "balance", "transaction", "aba", "deposit", "savings", "financial"]
+        "Return Flight Tickets & Hotel Confirmation": {
+          "exact_phrases": ["return flight tickets and hotel", "flight tickets and hotel confirmation", "return ticket and hotel"],
+          "keywords": ["return", "flight", "hotel", "confirmation", "tickets"]
         },
-        "Passport / Identification": {
-          "exact_phrases": ["no passport", "don't have passport", "id card", "identity card"],
-          "keywords": ["passport", "patent", "identity", "identification", "id card"]
+        "Bank Statement Issue": {
+          "exact_phrases": ["bank statement", "bank account", "account statement", "no bank statement", "don't have bank", "aba account"],
+          "keywords": ["bank", "statement", "account", "balance", "transaction", "deposit", "savings"]
+        },
+        "Education Details": {
+          "exact_phrases": ["education details", "school certificate", "degree certificate", "transcript"],
+          "keywords": ["education", "school", "degree", "university", "college", "transcript", "diploma"]
         },
         "Employment Letter": {
-          "exact_phrases": ["employment letter", "work permit", "employer letter", "job letter", "no employment", "no permit"],
-          "keywords": ["employment", "employer", "letter", "permit", "salary", "income", "job"]
+          "exact_phrases": ["employment letter", "employer letter", "job letter", "no employment letter"],
+          "keywords": ["employment", "employer", "letter", "salary", "job", "workplace"]
+        },
+        "Family": {
+          "exact_phrases": ["family book", "family document", "family member"],
+          "keywords": ["family", "spouse", "child", "children", "parent", "relative", "household"]
+        },
+        "Fixed Deposit": {
+          "exact_phrases": ["fixed deposit", "fd account", "term deposit"],
+          "keywords": ["fixed", "deposit", "fd"]
+        },
+        "Hotel Confirmation": {
+          "exact_phrases": ["hotel confirmation", "hotel booking", "hotel reservation"],
+          "keywords": ["hotel", "confirmation", "booking", "reservation", "accommodation"]
+        },
+        "Insurance": {
+          "exact_phrases": ["travel insurance", "insurance certificate", "insurance policy"],
+          "keywords": ["insurance", "insured", "policy", "coverage"]
+        },
+        "Invitation Letter": {
+          "exact_phrases": ["invitation letter", "letter of invitation"],
+          "keywords": ["invitation", "invite", "inviting"]
+        },
+        "Letter of Leave": {
+          "exact_phrases": ["letter of leave", "leave letter", "leave approval"],
+          "keywords": ["leave", "annual", "approved"]
+        },
+        "Local Tour Confirmation": {
+          "exact_phrases": ["local tour confirmation", "tour confirmation", "local tour package"],
+          "keywords": ["local", "tour", "confirmation", "package"]
         },
         "Marriage Certificate": {
-          "exact_phrases": ["marriage certificate", "family book", "birth certificate"],
-          "keywords": ["marriage", "wedding", "spouse", "family", "certificate", "birth"]
+          "exact_phrases": ["marriage certificate", "wedding certificate", "not married yet"],
+          "keywords": ["marriage", "married", "wedding", "spouse", "certificate"]
         },
-        "Visa / Travel Document": {
-          "exact_phrases": ["invitation letter", "visa extension", "entry permit", "travel document"],
-          "keywords": ["invitation", "visa", "travel", "entry", "extension", "permit"]
+        "Missing Passport": {
+          "exact_phrases": ["missing passport", "no passport", "don't have passport", "passport expired"],
+          "keywords": ["passport", "missing", "expired", "renew"]
         },
-        "General Documents": {
-          "exact_phrases": ["don't have documents", "no documents", "cannot provide documents", "documents make"],
-          "keywords": ["documents", "document", "paper", "papers", "provide", "submit"]
+        "No Patent": {
+          "exact_phrases": ["no patent", "patent card", "don't have patent", "patent exchange"],
+          "keywords": ["patent"]
+        },
+        "Return Flight Tickets": {
+          "exact_phrases": ["return flight", "return ticket", "flight ticket", "return tickets"],
+          "keywords": ["return", "flight", "ticket", "tickets", "airfare"]
+        },
+        "Salary Slip": {
+          "exact_phrases": ["salary slip", "pay slip", "payslip"],
+          "keywords": ["salary", "slip", "payslip", "payroll"]
+        },
+        "Travel Itinerary": {
+          "exact_phrases": ["travel itinerary", "trip itinerary", "itinerary"],
+          "keywords": ["itinerary", "schedule", "plan", "trip"]
+        },
+        "Visa Extension": {
+          "exact_phrases": ["visa extension", "extend visa", "extension visa"],
+          "keywords": ["extension", "extend", "visa"]
+        },
+        "Work Permit": {
+          "exact_phrases": ["work permit", "no work permit", "working permit", "cambodia work permit"],
+          "keywords": ["permit", "work", "working"]
         }
       }
     },
-    "Employment - Out of Scope": {
+    "Trust": {
       "subclasses": {
-        "Work Visa Eligibility": {
-          "exact_phrases": ["work visa", "working visa", "want work", "want to work"],
-          "keywords": ["work", "working", "visa", "permit", "job", "employment"]
-        },
-        "Country-Specific Work": {
-          "exact_phrases": ["work in australia", "work in japan", "work in korea", "work in canada"],
-          "keywords": ["australia", "japan", "korea", "canada", "hong kong", "singapore", "dubai"]
-        },
-        "Qualification / Experience": {
-          "exact_phrases": ["no experience", "not qualified", "no qualification"],
-          "keywords": ["experience", "qualified", "qualification", "skill", "degree", "education"]
-        },
-        "General Employment": {
-          "exact_phrases": ["out of scope", "not possible", "cannot work"],
-          "keywords": ["possible", "scope", "need", "want", "help", "brother", "sister"]
+        "Trust Issue": {
+          "exact_phrases": ["trust issue", "can i trust", "trust you", "is this scam", "not trust"],
+          "keywords": ["trust", "scam", "fraud", "reliable", "honest", "believe", "credible"]
         }
       }
     },
-    "Risk / Guarantee Concern": {
+    "Competitor Comparison": {
       "subclasses": {
-        "Visa Approval Risk": {
-          "exact_phrases": ["visa approval", "get visa", "visa rejected", "visa denied", "afraid visa"],
-          "keywords": ["approval", "approved", "reject", "denied", "afraid", "worry", "worried"]
-        },
-        "Money / Refund Risk": {
-          "exact_phrases": ["money back", "get money", "lose money", "refund"],
-          "keywords": ["money", "refund", "lose", "pay", "paid", "payment", "100"]
-        },
-        "Guarantee Request": {
-          "exact_phrases": ["no guarantee", "any guarantee", "guaranteed"],
-          "keywords": ["guarantee", "guaranteed", "sure", "certain", "promise"]
-        },
-        "General Risk": {
-          "exact_phrases": [],
-          "keywords": ["risk", "afraid", "worried", "scared", "trust", "safe"]
+        "Customer Service": {
+          "exact_phrases": ["customer service", "other agency", "competitor", "another company", "other company"],
+          "keywords": ["service", "agency", "competitor", "compare", "comparison", "company", "consultant"]
         }
       }
     },
-    "Price Concern": {
+    "Lack of Understanding": {
       "subclasses": {
-        "Visa Fee": {
-          "exact_phrases": ["visa fee", "visa cost", "visa price", "too expensive"],
-          "keywords": ["fee", "fees", "cost", "price", "expensive", "charge", "charges"]
+        "Bank App Technical": {
+          "exact_phrases": ["bank app", "mobile banking", "app technical", "banking app"],
+          "keywords": ["app", "bank", "mobile", "technical", "online", "digital"]
         },
-        "Competitor Pricing": {
-          "exact_phrases": ["other agency", "other company", "cheaper elsewhere"],
-          "keywords": ["cheaper", "competitor", "other", "compare", "comparison", "agency"]
+        "Marital Status": {
+          "exact_phrases": ["marital status", "not married", "single status"],
+          "keywords": ["marital", "married", "single", "status", "spouse"]
         },
-        "Translation / Service Fee": {
-          "exact_phrases": ["translation fee", "service fee", "processing fee"],
-          "keywords": ["translation", "service", "processing", "extra", "additional"]
+        "Minor": {
+          "exact_phrases": ["minor child", "under 18", "underage", "too young"],
+          "keywords": ["minor", "child", "young", "age", "18", "years"]
         },
-        "General Price": {
-          "exact_phrases": [],
-          "keywords": ["price", "expensive", "cost", "money", "pay", "100", "dollar"]
+        "Sponsorship": {
+          "exact_phrases": ["sponsorship", "sponsor letter", "who sponsor"],
+          "keywords": ["sponsor", "sponsorship", "sponsored"]
+        },
+        "Travel History": {
+          "exact_phrases": ["travel history", "been abroad", "visited before", "previous travel"],
+          "keywords": ["history", "travel", "visited", "been", "before", "trip"]
         }
       }
     },
-    "Processing Time Concern": {
+    "Location": {
       "subclasses": {
-        "Timeline / Duration": {
-          "exact_phrases": ["how long", "how many days", "takes too long"],
-          "keywords": ["days", "weeks", "month", "time", "long", "duration", "10"]
-        },
-        "Urgency": {
-          "exact_phrases": ["need urgently", "as soon as possible", "very urgent"],
-          "keywords": ["urgent", "urgently", "soon", "quickly", "fast", "asap"]
-        },
-        "Slow Service": {
-          "exact_phrases": ["slow service", "too slow", "taking long"],
-          "keywords": ["slow", "delay", "delayed", "wait", "waiting"]
-        },
-        "General Time": {
-          "exact_phrases": [],
-          "keywords": ["time", "days", "soon", "possible", "service"]
+        "General": {
+          "exact_phrases": ["office far", "too far", "from province", "siem reap"],
+          "keywords": ["far", "distance", "office", "location", "province", "city", "area", "travel"]
         }
       }
     },
-    "Trust Issue": {
+    "Price": {
       "subclasses": {
-        "Scam Concern": {
-          "exact_phrases": ["is this scam", "scam", "fraud", "not real"],
-          "keywords": ["scam", "fraud", "fake", "real", "legit", "legitimate"]
+        "Refund": {
+          "exact_phrases": ["refund", "money back", "get money back"],
+          "keywords": ["refund", "money", "back", "return"]
         },
-        "Payment Trust": {
-          "exact_phrases": ["pay first", "before payment", "after payment"],
-          "keywords": ["pay", "payment", "paid", "transfer", "bank transfer"]
-        },
-        "Agency Credibility": {
-          "exact_phrases": ["trust you", "can i trust", "reliable agency"],
-          "keywords": ["trust", "believe", "reliable", "credible", "honest", "office"]
-        },
-        "General Trust": {
-          "exact_phrases": [],
-          "keywords": ["think", "sure", "believe", "sorry", "yes", "visa"]
+        "Pricing Issue": {
+          "exact_phrases": ["too expensive", "pricing issue", "visa fee", "visa price", "give discount"],
+          "keywords": ["price", "expensive", "cost", "fee", "discount", "charge", "cheaper"]
         }
       }
     },
-    "Comparison / Competitor Claim": {
+    "Processing Time": {
       "subclasses": {
-        "Competitor Pricing": {
-          "exact_phrases": ["other company", "other agency charges", "competitor charges"],
-          "keywords": ["charge", "charges", "price", "cost", "company", "companies", "agency"]
-        },
-        "Competitor Service": {
-          "exact_phrases": ["other agency", "another agency", "pop consultant"],
-          "keywords": ["agency", "consultant", "companies", "competitor", "other"]
-        },
-        "Feature Comparison": {
-          "exact_phrases": ["better than", "compared to", "difference between"],
-          "keywords": ["compare", "comparison", "better", "difference", "versus"]
-        },
-        "General Comparison": {
-          "exact_phrases": [],
-          "keywords": ["brother", "documents", "costs", "possible", "know"]
+        "Processing Time": {
+          "exact_phrases": ["processing time", "how long", "takes too long", "how many days"],
+          "keywords": ["processing", "time", "long", "days", "weeks", "slow", "urgent", "wait"]
         }
       }
     },
-    "Lack Of Understanding": {
+    "Risk / Guarantee Concerns": {
       "subclasses": {
-        "Process Confusion": {
-          "exact_phrases": ["don't understand", "don't know how", "how does it work"],
-          "keywords": ["understand", "know", "how", "process", "procedure", "steps"]
-        },
-        "Requirements Unclear": {
-          "exact_phrases": ["what documents", "what do i need", "what is required"],
-          "keywords": ["need", "require", "required", "documents", "what", "ask"]
-        },
-        "Interview / Appointment": {
-          "exact_phrases": ["going interview", "interview", "appointment"],
-          "keywords": ["interview", "appointment", "meeting", "schedule"]
-        },
-        "General Confusion": {
-          "exact_phrases": [],
-          "keywords": ["know", "like", "possible", "soon", "let", "brother"]
-        }
-      }
-    },
-    "Location Concern": {
-      "subclasses": {
-        "Office Distance": {
-          "exact_phrases": ["office far", "too far", "far from"],
-          "keywords": ["far", "distance", "office", "travel", "come"]
-        },
-        "Province / City": {
-          "exact_phrases": ["siem reap", "in province", "from province"],
-          "keywords": ["province", "siem", "reap", "phnom", "city", "area"]
-        },
-        "Office Hours / Access": {
-          "exact_phrases": ["office time", "office hours", "when open"],
-          "keywords": ["office", "time", "hours", "open", "visit"]
-        },
-        "General Location": {
-          "exact_phrases": [],
-          "keywords": ["office", "far", "just", "little", "time"]
-        }
-      }
-    },
-    "Others": {
-      "subclasses": {
-        "Tour / Travel": {
-          "exact_phrases": ["tour package", "travel tour", "tourist"],
-          "keywords": ["tour", "travel", "trip", "tourist", "holiday"]
-        },
-        "Living Abroad": {
-          "exact_phrases": ["want to live", "live in", "move to"],
-          "keywords": ["live", "living", "move", "abroad", "country"]
-        },
-        "General Inquiry": {
-          "exact_phrases": [],
-          "keywords": ["want", "visa", "know", "possible", "just", "soon"]
+        "Visa Guarantee": {
+          "exact_phrases": ["visa guarantee", "guaranteed visa", "guarantee visa", "approval guarantee"],
+          "keywords": ["guarantee", "guaranteed", "approval", "risk", "sure", "reject", "denied"]
         }
       }
     }

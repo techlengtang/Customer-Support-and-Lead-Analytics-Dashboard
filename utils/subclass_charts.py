@@ -4,7 +4,7 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 
-from utils.nlp import apply_subclass_rules, preprocess_text
+from utils.nlp import apply_subclass_rules, preprocess_text, _resolve_rule_class_key
 from utils.paths import get_config_path
 
 
@@ -23,30 +23,7 @@ def get_subclass_summaries_from_df(
     label_column='Objection Type',
 ):
     """Assign rule-based subclasses and return per-class count summaries."""
-    if df.empty or label_column not in df.columns:
-        return None
-
-    if 'Subclass' in df.columns:
-        working = df[[text_column, label_column, 'Subclass']].dropna(subset=[label_column, 'Subclass'])
-        if working.empty:
-            return None
-
-        summary = {}
-        for class_name, group in working.groupby(label_column):
-            counts = (
-                group['Subclass']
-                .value_counts()
-                .reset_index(name='count')
-                .rename(columns={'Subclass': 'subclass'})
-            )
-            summary[class_name] = counts.to_dict('records')
-
-        assignments = working.rename(
-            columns={label_column: 'class', 'Subclass': 'subclass', text_column: 'text'}
-        )
-        return {'assignments': assignments, 'summary': summary}
-
-    if text_column not in df.columns:
+    if df.empty or text_column not in df.columns or label_column not in df.columns:
         return None
 
     rules = _load_subclass_rules()
@@ -201,6 +178,87 @@ def render_objection_class_overview(df, label_column='Objection Type'):
     st.markdown('<div class="section-spacer"></div>', unsafe_allow_html=True)
 
 
+CLUSTER_CLASS_STYLES = {
+    'Documentation': 'cluster-card-documentation',
+    'Trust': 'cluster-card-trust',
+    'Competitor Comparison': 'cluster-card-competitor',
+    'Lack of Understanding': 'cluster-card-understanding',
+    'Location': 'cluster-card-location',
+    'Price': 'cluster-card-price',
+    'Processing Time': 'cluster-card-processing',
+    'Risk / Guarantee Concerns': 'cluster-card-risk',
+}
+
+
+def _taxonomy_summary(rules):
+    classes = rules.get('classes', {})
+    total_clusters = sum(len(info.get('subclasses', {})) for info in classes.values())
+    return len(classes), total_clusters, classes
+
+
+def render_cluster_catalog():
+    """Display the canonical 8 objection types and 31 cluster names."""
+    rules = _load_subclass_rules()
+    if rules is None:
+        return
+
+    class_count, cluster_count, classes = _taxonomy_summary(rules)
+
+    st.markdown(
+        """
+        <div class='chart-title'>
+            Customer Objections and Corresponding Clusters
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+    st.caption(
+        f'{class_count} objection types and {cluster_count} unique objection/cluster pairs '
+        'from the customer objection taxonomy.'
+    )
+
+    class_order = list(CLUSTER_CLASS_STYLES.keys())
+    ordered_classes = [name for name in class_order if name in classes]
+    ordered_classes.extend(name for name in classes if name not in ordered_classes)
+
+    for class_name in ordered_classes:
+        subclasses = list(classes[class_name].get('subclasses', {}).keys())
+        style_class = CLUSTER_CLASS_STYLES.get(class_name, 'cluster-card-default')
+        chips = ''.join(
+            f'<span class="cluster-chip">{name}</span>'
+            for name in subclasses
+        )
+        st.markdown(
+            f"""
+            <div class="cluster-card {style_class}">
+                <div class="cluster-card-header">
+                    <span class="cluster-card-title">{class_name}</span>
+                    <span class="cluster-card-count">{len(subclasses)} clusters</span>
+                </div>
+                <div class="cluster-chip-row">{chips}</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+    st.caption(
+        'Note: labels are shown once per unique objection/cluster pair from the full customer objection dataset.'
+    )
+    st.markdown('<div class="section-spacer"></div>', unsafe_allow_html=True)
+
+
+def _complete_class_summary(class_name, items, rules):
+    """Ensure every official cluster name appears, even when count is zero."""
+    rule_classes = rules.get('classes', {})
+    rule_key = _resolve_rule_class_key(class_name, list(rule_classes.keys()))
+    if not rule_key or rule_key not in rule_classes:
+        return [item for item in items if item.get('subclass') != 'Unspecified']
+
+    official_names = list(rule_classes[rule_key].get('subclasses', {}).keys())
+    counts = {item['subclass']: item['count'] for item in items}
+    return [{'subclass': name, 'count': counts.get(name, 0)} for name in official_names]
+
+
 def render_all_subclass_charts(summary, columns=2, show_section_header=True):
     """Render one bar chart per objection class showing subclass counts."""
     if not summary:
@@ -217,16 +275,28 @@ def render_all_subclass_charts(summary, columns=2, show_section_header=True):
             unsafe_allow_html=True,
         )
         st.caption(
-            'Each chart shows how many quotes fall into each subclass within that objection class '
-            '(e.g. Documentation → Bank Statement, Passport, Employment Letter).'
+            'Each chart shows quote counts for the official objection clusters within that class.'
         )
 
-    class_names = sorted(summary.keys(), key=lambda name: sum(item['count'] for item in summary[name]), reverse=True)
+    rules = _load_subclass_rules()
+    rule_classes = set(rules.get('classes', {}).keys()) if rules else set()
+    class_names = [
+        name for name in summary.keys()
+        if _resolve_rule_class_key(name, list(rule_classes)) in rule_classes
+    ]
+    class_names = sorted(
+        class_names,
+        key=lambda name: sum(item['count'] for item in summary[name]),
+        reverse=True,
+    )
     chart_cols = st.columns(columns)
 
     for index, class_name in enumerate(class_names):
-        items = summary[class_name]
+        items = _complete_class_summary(class_name, summary[class_name], rules)
         chart_df = pd.DataFrame(items).rename(columns={'subclass': 'Subclass', 'count': 'Count'})
+        chart_df = chart_df[chart_df['Count'] > 0]
+        if chart_df.empty:
+            continue
         total_quotes = int(chart_df['Count'].sum())
 
         with chart_cols[index % columns]:

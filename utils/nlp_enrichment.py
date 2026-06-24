@@ -11,6 +11,7 @@ from utils.nlp import (
 from utils.subclass_charts import _load_subclass_rules
 
 NLP_META_KEY = 'nlp_meta'
+NLP_CACHE_VERSION = 2
 TEXT_COLUMN = 'Quote_English'
 LABEL_COLUMN = 'Objection Type'
 
@@ -96,7 +97,7 @@ def _enrich_dataframe(df):
 
 
 @st.cache_data(show_spinner='Running NLP analysis on customer quotes...')
-def get_enriched_dataframe(df: pd.DataFrame):
+def get_enriched_dataframe(df: pd.DataFrame, _cache_version=NLP_CACHE_VERSION):
     enriched, meta = _enrich_dataframe(df)
     return enriched, meta
 

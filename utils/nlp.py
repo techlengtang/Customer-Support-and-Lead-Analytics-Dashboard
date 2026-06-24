@@ -290,19 +290,17 @@ def load_subclass_rules(path=None):
 
 
 CLASS_LABEL_ALIASES = {
-    'documentation': 'Documentation Concern',
-    'price': 'Price Concern',
-    'processing time': 'Processing Time Concern',
-    'trust': 'Trust Issue',
-    'lack of understanding': 'Lack Of Understanding',
-    'convenience / location': 'Location Concern',
-    'location concern': 'Location Concern',
-    'risk / guarantee concerns': 'Risk / Guarantee Concern',
-    'risk / guarantee concern': 'Risk / Guarantee Concern',
-    'employme - out of scope': 'Employment - Out of Scope',
-    'employment - out of scope': 'Employment - Out of Scope',
-    'comparison / competitor claim': 'Comparison / Competitor Claim',
-    'others': 'Others',
+    'documentation': 'Documentation',
+    'price': 'Price',
+    'processing time': 'Processing Time',
+    'trust': 'Trust',
+    'lack of understanding': 'Lack of Understanding',
+    'convenience / location': 'Location',
+    'location': 'Location',
+    'risk / guarantee concerns': 'Risk / Guarantee Concerns',
+    'risk / guarantee concern': 'Risk / Guarantee Concerns',
+    'comparison / competitor claim': 'Competitor Comparison',
+    'competitor comparison': 'Competitor Comparison',
 }
 
 

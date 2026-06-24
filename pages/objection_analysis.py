@@ -7,6 +7,7 @@ from utils.paths import get_config_path
 from utils.subclass_charts import (
     get_subclass_summaries_from_df,
     render_all_subclass_charts,
+    render_cluster_catalog,
     render_objection_class_overview,
 )
 from utils.wordcloud_viz import render_objection_wordcloud_section
@@ -213,6 +214,12 @@ def show_objection_analysis(df):
     # =========================
 
     render_objection_class_overview(df)
+
+    # =========================
+    # CLUSTER CATALOG
+    # =========================
+
+    render_cluster_catalog()
 
     # =========================
     # SUBCLASS BREAKDOWN
