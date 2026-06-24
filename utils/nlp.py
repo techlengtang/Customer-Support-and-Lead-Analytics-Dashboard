@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 from sklearn.decomposition import LatentDirichletAllocation
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.linear_model import LogisticRegression
+from sklearn.svm import LinearSVC
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.metrics import accuracy_score, classification_report
@@ -196,11 +196,10 @@ def train_objection_classifier(texts, labels, top_labels=8):
             max_features=3000,
             ngram_range=(1, 2)
         )),
-        ('clf', LogisticRegression(
-            max_iter=500,
+        ('clf', LinearSVC(
+            max_iter=10000,
             class_weight='balanced',
-            random_state=42,
-            n_jobs=-1
+            random_state=42
         ))
     ])
 
