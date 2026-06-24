@@ -17,7 +17,7 @@ def show_lead_analytics(df):
     # =========================
     # KPI CARDS
     # =========================
-
+    c1, c2, c3, c4 = st.columns(4)
     total_leads = len(df)
 
     qualified = len(
@@ -36,6 +36,27 @@ def show_lead_analytics(df):
         if total_leads > 0
         else 0
     )
+    details = {
+        "Total Leads": (
+            f"{total_leads:,} Records",
+            "Lead Pipeline"
+        ),
+
+        "Qualified Leads": (
+            f"{qualified:,} Leads",
+            "Ready to Convert"
+        ),
+
+        "Converted Leads": (
+            f"{converted:,} Customers",
+            "Successful Conversions"
+        ),
+
+        "Conversion Rate": (
+            f"{conversion_rate:.1f}%",
+            "Lead Efficiency"
+        )
+    }
 
     icons = {
         "Total Leads": '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>',
@@ -43,8 +64,6 @@ def show_lead_analytics(df):
         "Converted Leads": '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>',
         "Conversion Rate": '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>'
     }
-
-    c1, c2, c3, c4 = st.columns(4)
 
     metrics = [
         ("Total Leads", total_leads),
@@ -59,8 +78,13 @@ def show_lead_analytics(df):
     ):
 
         with col:
-            svg_content = icons[title].replace('<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">', '').replace('</svg>', '')
-            card_html = f'<div class="metric-card"><div class="metric-header"><div class="metric-title">{title}</div><div class="metric-icon" style="background-color: #FFF7ED;"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#F97316" stroke-width="2" style="stroke-linecap: round; stroke-linejoin: round;">{svg_content}</svg></div></div><div class="metric-value">{value}</div></div>'
+            display_value = (
+                f"{value:,}"
+                if isinstance(value, (int, float))
+                else str(value)
+            )
+            detail_1, detail_2 = details[title]
+            card_html = f'<div class="metric-card" style="background:white;"><div class="metric-header"><div class="metric-title">{title}</div><div class="metric-icon">{icons[title]}</div></div><div style="display:flex; justify-content:space-between; align-items:flex-end;"><div class="metric-value">{display_value}</div><div style="text-align:right; color:#64748B; font-size:11px; line-height:1.3; padding-bottom:4px;"><div>{detail_1}</div><div>{detail_2}</div></div></div></div>'
             st.markdown(card_html, unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
@@ -173,6 +197,19 @@ def show_lead_analytics(df):
             platform_df["Lead Quality"]
         ).reset_index()
 
+        lead_order = [
+            "Converted",
+            "Qualified",
+            "Unqualified",
+            "Lost"
+        ]
+
+        for col in lead_order:
+            if col not in platform.columns:
+                platform[col] = 0
+
+        platform = platform[["Platform"] + lead_order]
+
         # Sort by total leads
         platform["Total"] = (
             platform.iloc[:, 1:]
@@ -193,13 +230,12 @@ def show_lead_analytics(df):
             x="Platform",
             y=platform.columns[1:],
             barmode="group",
-            color_discrete_sequence=[
-                "#F5D7A8",
-                "#F0B66D",
-                "#F58A32",
-                "#FF6B00",
-                "#D9480F"
-            ]
+            color_discrete_map={
+                "Converted": "#FF6B00",      # Dark Orange
+                "Qualified": "#F58A32",      # Orange
+                "Unqualified": "#F0B66D",    # Medium Light
+                "Lost": "#F5D7A8"            # Lightest
+            }
         )
 
         fig.update_layout(
@@ -278,7 +314,7 @@ def show_lead_analytics(df):
                 expand=False
             )
         )
-
+        
         # Convert code to country name
         destination_df["Destination"] = (
             destination_df["Destination"]
@@ -290,7 +326,14 @@ def show_lead_analytics(df):
                 "US": "USA",
                 "EU": "Europe",
                 "CA": "Canada",
-                "HK": "Hong Kong"
+                "HK": "Hong Kong",
+                "TH": "Thailand",
+                "USA": "United States",
+                "MY": "Malaysia",
+                "VN": "Vietnam",
+                "AE": "United Arab Emirates",
+                "NZ": "New Zealand",
+                "TR": "Turkey",
             })
             .fillna("Other")
         )
@@ -299,6 +342,19 @@ def show_lead_analytics(df):
             destination_df["Destination"],
             destination_df["Lead Quality"]
         ).reset_index()
+
+        lead_order = [
+            "Converted",
+            "Qualified",
+            "Unqualified",
+            "Lost"
+        ]
+
+        for col in lead_order:
+            if col not in destination.columns:
+                destination[col] = 0
+
+        destination = destination[["Destination"] + lead_order]
 
         # Sort by total leads
         destination["Total"] = (
@@ -316,19 +372,30 @@ def show_lead_analytics(df):
                 columns="Total"
             )
         )
+        # Calculate total leads
+        destination["Total"] = destination.iloc[:, 1:].sum(axis=1)
+
+        # Keep Top 6 countries only
+        destination = (
+            destination
+            .sort_values("Total", ascending=False)
+            .head(6)
+        )
+
+        # Remove helper column
+        destination = destination.drop(columns="Total")
 
         fig = px.bar(
             destination,
             x="Destination",
             y=destination.columns[1:],
             barmode="stack",
-            color_discrete_sequence=[
-                "#F5D7A8",
-                "#F0B66D",
-                "#F58A32",
-                "#FF6B00",
-                "#D9480F"
-            ]
+            color_discrete_map={
+                "Converted": "#FF6B00",      # Dark Orange
+                "Qualified": "#F58A32",      # Orange
+                "Unqualified": "#F0B66D",    # Medium Light
+                "Lost": "#F5D7A8"            # Lightest
+            }
         )
 
         fig.update_layout(
@@ -478,9 +545,9 @@ def show_lead_analytics(df):
             y=["Negative", "Neutral", "Positive"],
             barmode="stack",
             color_discrete_map={
-                "Positive": "#7BCFA1",
-                "Neutral": "#F6C56F",
-                "Negative": "#F28B82",
+                "Positive": "#A8E6CF",
+                "Neutral": "#FCE38A",
+                "Negative": "#F8B4B4"
             },
         )
         fig.update_layout(
@@ -526,7 +593,10 @@ def show_lead_analytics(df):
                 y="Count",
                 color="Lead Quality",
                 barmode="group",
-                color_discrete_sequence=px.colors.qualitative.Set2,
+                color_discrete_map={
+                "Converted": "#FF6B00",      # Dark Orange
+                "Lost": "#F5D7A8" 
+                },
             )
             fig.update_layout(
                 height=420,

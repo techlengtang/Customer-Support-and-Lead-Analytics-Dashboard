@@ -162,6 +162,30 @@ def show_dashboard(df):
             filtered_df["Lead Quality"] == "Converted"
         ]
     )
+    details = {
+        "Total Records": (
+            f"{len(filtered_df):,} Cases",
+            "Customer Inquiries"
+        ),
+
+        "Open Cases": (
+            f"{(open_cases / len(filtered_df) * 100):.1f}%"
+            if len(filtered_df) > 0 else "0%",
+            "Unresolved Rate"
+        ),
+
+        "Converted": (
+            f"{(converted / len(filtered_df) * 100):.1f}%"
+            if len(filtered_df) > 0 else "0%",
+            "Conversion Rate"
+        ),
+
+        "Objection Types": (
+            f"{filtered_df['Objection Type'].nunique()} Types",
+            "NLP Categories"
+        )
+    }
+
     icons = {
         "Total Records": '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="8" y1="8" x2="16" y2="8"></line><line x1="8" y1="12" x2="16" y2="12"></line><line x1="8" y1="16" x2="12" y2="16"></line></svg>',
         "Open Cases": '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>',
@@ -188,8 +212,8 @@ def show_dashboard(df):
                 else str(value)
             )
 
-            card_html = f'<div class="metric-card"><div class="metric-header"><div class="metric-title">{title}</div><div class="metric-icon">{icons[title]}</div></div><div class="metric-value">{display_value}</div></div>'
-            
+            detail_1, detail_2 = details[title]
+            card_html = f'<div class="metric-card" style="background:white;"><div class="metric-header"><div class="metric-title">{title}</div><div class="metric-icon">{icons[title]}</div></div><div style="display:flex; justify-content:space-between; align-items:flex-end;"><div class="metric-value">{display_value}</div><div style="text-align:right; color:#64748B; font-size:11px; line-height:1.3; padding-bottom:4px;"><div>{detail_1}</div><div>{detail_2}</div></div></div></div>'
             st.markdown(card_html, unsafe_allow_html=True)
 
     st.write("")
@@ -314,9 +338,9 @@ def show_dashboard(df):
             hole=0.5,
             color="Sentiment",
             color_discrete_map={
-                "Positive": "#7BCFA1",
-                "Neutral": "#F6C56F",
-                "Negative": "#F28B82",
+                "Positive": "#A8E6CF",
+                "Neutral": "#FCE38A",
+                "Negative": "#F8B4B4"
             },
         )
         fig.update_layout(

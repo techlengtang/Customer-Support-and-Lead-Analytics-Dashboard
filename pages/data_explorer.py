@@ -72,7 +72,29 @@ def show_data_explorer(df):
         if column not in leading_columns and column not in hidden_columns
     ]
 
-    st.dataframe(
-        working_df[leading_columns + remaining_columns],
-        width="stretch",
-    )
+    def sentiment_style(val):
+        if val == "Positive":
+            return "background-color: #E0F9F5; color: #059669"
+        elif val == "Neutral":
+            return "background-color: #FFFBEB; color: #D97706"
+        elif val == "Negative":
+            return "background-color: #FEE9E5; color: #DC2626"
+        return ""
+
+    display_df = working_df[leading_columns + remaining_columns]
+
+    if "Sentiment" in display_df.columns:
+        styled_df = display_df.style.map(
+            sentiment_style,
+            subset=["Sentiment"]
+        )
+
+        st.dataframe(
+            styled_df,
+            width="stretch"
+        )
+    else:
+        st.dataframe(
+            display_df,
+            width="stretch"
+        )
