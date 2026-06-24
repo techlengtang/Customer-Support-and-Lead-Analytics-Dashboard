@@ -5,6 +5,8 @@ import plotly.express as px
 
 def show_lead_analytics(df):
 
+    st.markdown("<div style='height: 20px;'></div>", unsafe_allow_html=True)
+
     st.markdown("""
     <div class='page-title'>Lead Analytics</div>
     <div class='page-subtitle'>
@@ -35,6 +37,13 @@ def show_lead_analytics(df):
         else 0
     )
 
+    icons = {
+        "Total Leads": '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>',
+        "Qualified Leads": '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>',
+        "Converted Leads": '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>',
+        "Conversion Rate": '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>'
+    }
+
     c1, c2, c3, c4 = st.columns(4)
 
     metrics = [
@@ -50,16 +59,9 @@ def show_lead_analytics(df):
     ):
 
         with col:
-
-            st.markdown(
-                f"""
-                <div class="metric-card">
-                    <div class="metric-title">{title}</div>
-                    <div class="metric-value">{value}</div>
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
+            svg_content = icons[title].replace('<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">', '').replace('</svg>', '')
+            card_html = f'<div class="metric-card"><div class="metric-header"><div class="metric-title">{title}</div><div class="metric-icon" style="background-color: #FFF7ED;"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#F97316" stroke-width="2" style="stroke-linecap: round; stroke-linejoin: round;">{svg_content}</svg></div></div><div class="metric-value">{value}</div></div>'
+            st.markdown(card_html, unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
 

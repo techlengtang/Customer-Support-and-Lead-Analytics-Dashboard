@@ -4,6 +4,7 @@ import plotly.express as px
 
 from utils.nlp import build_word_frequencies, preprocess_text
 from utils.nlp_enrichment import NLP_META_KEY
+import streamlit as st
 
 
 SENTIMENT_COLORS = {
@@ -41,39 +42,58 @@ def show_sentiment_analysis(df):
     neutral_pct = neutral / total * 100 if total else 0
     negative_pct = negative / total * 100 if total else 0
 
+    icons = {
+        "Total Comments": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>',
+        "Positive": '<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>',
+        "Neutral": '<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line></svg>',
+        "Negative": '<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><polyline points="4 18 15 7 20 12"></polyline></svg>'
+    }
+
+    
+    icon_colors = {
+        "Total Comments": "#F97316",
+        "Positive": "#B0F2E7",
+        "Neutral": "#FAEDBB",
+        "Negative": "#FAC4B9"
+    }
+    
+    icon_bg_light = {
+        "Total Comments": "#FFF7ED",
+        "Positive": "#E0F9F5",
+        "Neutral": "#FFFBEB",
+        "Negative": "#FEE9E5"
+    }
+    
+    feedback_icons = {
+        "Positive": "↑",
+        "Neutral": "−",
+        "Negative": "↓"
+    }
+
     c1, c2, c3, c4 = st.columns(4)
 
-    with c1:
-        st.markdown(f"""
-        <div class="metric-card">
-            <div class="metric-title">Total Comments</div>
-            <div class="metric-value">{total:,}</div>
-        </div>
-        """, unsafe_allow_html=True)
+    metrics_data = [
+        ("Total Comments", f"{total:,}", ""),
+        ("Positive", f"{positive_pct:.2f}%", f"{positive} Reviews"),
+        ("Neutral", f"{neutral_pct:.2f}%", f"{neutral} Reviews"),
+        ("Negative", f"{negative_pct:.2f}%", f"{negative} Reviews")
+    ]
 
-    with c2:
-        st.markdown(f"""
-        <div class="metric-card">
-            <div class="metric-title">Positive</div>
-            <div class="metric-value">{positive_pct:.1f}%</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with c3:
-        st.markdown(f"""
-        <div class="metric-card">
-            <div class="metric-title">Neutral</div>
-            <div class="metric-value">{neutral_pct:.1f}%</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with c4:
-        st.markdown(f"""
-        <div class="metric-card">
-            <div class="metric-title">Negative</div>
-            <div class="metric-value">{negative_pct:.1f}%</div>
-        </div>
-        """, unsafe_allow_html=True)
+    for col, (title, value, count) in zip([c1, c2, c3, c4], metrics_data):
+        with col:
+            if title == "Total Comments":
+                card_html = f'<div class="metric-card"><div class="metric-header"><div class="metric-title">{title}</div><div class="metric-icon" style="background:#FFF7ED;"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#F97316" stroke-width="2" style="stroke-linecap:round; stroke-linejoin:round;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg></div></div><div class="metric-value">{value}</div></div>'
+            else:
+                accent_color = icon_colors[title]
+                feedback_arrow = feedback_icons[title]
+                if title == "Positive":
+                    svg_icon = '<circle cx="12" cy="12" r="9"></circle><circle cx="9" cy="10" r="1.5" fill="white"></circle><circle cx="15" cy="10" r="1.5" fill="white"></circle><path d="M8 14c1 1.5 2.5 2.5 4 2.5s3-1.5 4-2.5"></path>'
+                elif title == "Neutral":
+                    svg_icon = '<circle cx="12" cy="12" r="9"></circle><circle cx="9" cy="10" r="1.5" fill="white"></circle><circle cx="15" cy="10" r="1.5" fill="white"></circle><line x1="8" y1="15" x2="16" y2="15" stroke-width="1.5"></line>'
+                else:  # Negative
+                    svg_icon = '<circle cx="12" cy="12" r="9"></circle><circle cx="9" cy="10" r="1.5" fill="white"></circle><circle cx="15" cy="10" r="1.5" fill="white"></circle><path d="M8 16c1-1.5 2.5-2.5 4-2.5s3 1.5 4 2.5"></path>'
+                card_html = f'<div class="metric-card" style="background:white;"><div class="metric-header"><div class="metric-title">{title}</div><div class="metric-icon" style="background:{accent_color}; color:white;"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="white" stroke-width="2" style="stroke-linecap:round; stroke-linejoin:round;">{svg_icon}</svg></div></div><div style="display:flex; justify-content:space-between; align-items:flex-end;"><div class="metric-value">{value}</div><div style="text-align:right; color:#64748B; font-size:11px; line-height:1.3; padding-bottom:4px;"><div>{count}</div><div>{feedback_arrow} Feedback</div></div></div></div>'
+            st.markdown(card_html, unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
 

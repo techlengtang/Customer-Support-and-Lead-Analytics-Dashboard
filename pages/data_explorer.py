@@ -7,6 +7,8 @@ from utils.nlp_enrichment import NLP_META_KEY
 
 def show_data_explorer(df):
 
+    st.markdown("<div style='height: 20px;'></div>", unsafe_allow_html=True)
+
     st.markdown("""
     <div class='page-title'>
     Data Explorer

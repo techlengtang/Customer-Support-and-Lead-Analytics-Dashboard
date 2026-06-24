@@ -13,6 +13,8 @@ ORANGE = [
 
 def show_dashboard(df):
 
+    st.markdown("<div style='height: 20px;'></div>", unsafe_allow_html=True)
+
     # ======================
     # HEADER
     # ======================
@@ -160,7 +162,12 @@ def show_dashboard(df):
             filtered_df["Lead Quality"] == "Converted"
         ]
     )
-
+    icons = {
+        "Total Records": '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="8" y1="8" x2="16" y2="8"></line><line x1="8" y1="12" x2="16" y2="12"></line><line x1="8" y1="16" x2="12" y2="16"></line></svg>',
+        "Open Cases": '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>',
+        "Converted": '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="9 12 11 14 15 10"></polyline></svg>',
+        "Objection Types": '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>'
+    }
     metrics = [
         ("Total Records", len(filtered_df)),
         ("Open Cases", open_cases),
@@ -181,15 +188,9 @@ def show_dashboard(df):
                 else str(value)
             )
 
-            st.markdown(
-                f"""
-                <div class="metric-card">
-                    <div class="metric-title">{title}</div>
-                    <div class="metric-value">{display_value}</div>
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
+            card_html = f'<div class="metric-card"><div class="metric-header"><div class="metric-title">{title}</div><div class="metric-icon">{icons[title]}</div></div><div class="metric-value">{display_value}</div></div>'
+            
+            st.markdown(card_html, unsafe_allow_html=True)
 
     st.write("")
 
@@ -296,12 +297,21 @@ def show_dashboard(df):
             .reset_index()
         )
         sentiment_counts.columns = ["Sentiment", "Count"]
+        total = sentiment_counts["Count"].sum()
+        sentiment_counts["Legend"] = (
+            sentiment_counts["Sentiment"]
+            + " ("
+            + (
+                sentiment_counts["Count"] / total * 100
+            ).round(1).astype(str)
+            + "%)"
+        )
 
         fig = px.pie(
             sentiment_counts,
-            names="Sentiment",
+            names="Legend",
             values="Count",
-            hole=0.55,
+            hole=0.5,
             color="Sentiment",
             color_discrete_map={
                 "Positive": "#7BCFA1",
@@ -310,13 +320,42 @@ def show_dashboard(df):
             },
         )
         fig.update_layout(
-            height=320,
+            height=400,
             template="plotly_white",
             paper_bgcolor="white",
             plot_bgcolor="white",
-            showlegend=True,
+
+            margin=dict(
+                l=20,
+                r=20,
+                t=20,
+                b=20
+            ),
+
+            legend=dict(
+                orientation="h",
+                yanchor="bottom",
+                y=-0.15,
+                xanchor="center",
+                x=0.5,
+                font=dict(size=14)
+            )
         )
-        st.plotly_chart(fig, width="stretch", config={"displayModeBar": False})
+        fig.update_traces(
+            textinfo="none",
+            marker=dict(
+                line=dict(
+                    color="white",
+                    width=2
+                )
+            )
+        )
+
+        st.plotly_chart(
+            fig,
+            width="stretch",
+            config={"displayModeBar": False}
+        )
 
         st.markdown("<br>", unsafe_allow_html=True)
     # ======================

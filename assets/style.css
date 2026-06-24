@@ -76,31 +76,56 @@ section[data-testid="stSidebar"] > div {
 /* KPI CARDS */
 
 .metric-card {
-    background: white;
+    background: linear-gradient(135deg, #ffffff 0%, #fafbfc 100%);
     border: 1px solid #ECEEF3;
     border-radius: 18px;
-    padding: 22px 26px;
-    min-height: 90px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.04);
-    transition: all 0.2s ease;
+    padding: 24px 26px;
+    min-height: 110px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    transition: all 0.3s ease;
 }
 .metric-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.12);
+    border-color: #FB923C;
 }
 .metric-title {
     color: #6B7280;
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 600;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .metric-value {
-    /* margin-top: 12px; */
-    font-size: 32px !important;
-    font-weight: 700;
+    font-size: 36px !important;
+    font-weight: 800;
     color: #1F2937;
     line-height: 1;
+    margin-top: 8px;
+}
+.metric-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: #FFF7ED;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+.metric-icon svg {
+    width: 24px;
+    height: 24px;
+    stroke: #F97316;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+.metric-header{
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
 }
 
 /* DATA UPLOAD */

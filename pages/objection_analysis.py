@@ -16,6 +16,8 @@ from utils.wordcloud_viz import render_objection_wordcloud_section
 
 def show_objection_analysis(df):
 
+    st.markdown("<div style='height: 20px;'></div>", unsafe_allow_html=True)
+
     st.markdown("""
     <div class='page-title'>Objection Analysis</div>
     <div class='page-subtitle'>
@@ -26,6 +28,13 @@ def show_objection_analysis(df):
     # =========================
     # KPI CARDS
     # =========================
+
+    icons = {
+        "Total Objections": '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="8" y1="8" x2="16" y2="8"></line><line x1="8" y1="12" x2="16" y2="12"></line><line x1="8" y1="16" x2="12" y2="16"></line></svg>',
+        "Categories": '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L15.09 8.26H22L17.45 12.88L19.54 19.12L12 15.77L4.46 19.12L6.55 12.88L2 8.26H8.91L12 2Z"></path></svg>',
+        "Open Cases": '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>',
+        "Platforms": '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>'
+    }
 
     c1, c2, c3, c4 = st.columns(4)
 
@@ -42,16 +51,9 @@ def show_objection_analysis(df):
     ):
 
         with col:
-
-            st.markdown(
-                f"""
-                <div class="metric-card">
-                    <div class="metric-title">{title}</div>
-                    <div class="metric-value">{value:,}</div>
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
+            svg_content = icons[title].replace('<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">', '').replace('</svg>', '')
+            card_html = f'<div class="metric-card"><div class="metric-header"><div class="metric-title">{title}</div><div class="metric-icon" style="background-color: #FFF7ED;"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#F97316" stroke-width="2" style="stroke-linecap: round; stroke-linejoin: round;">{svg_content}</svg></div></div><div class="metric-value">{value:,}</div></div>'
+            st.markdown(card_html, unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
 
