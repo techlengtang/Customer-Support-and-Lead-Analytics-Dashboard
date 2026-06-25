@@ -185,10 +185,10 @@ def show_lead_analytics(df):
         platform_df["Platform"] = (
             platform_df["Main Contact Platform"]
             .replace({
-                "Facebook - Explorer Travel Agency": "Facebook Page",
-                "Facebook - Explorer by SL": "Facebook SL",
+                "Facebook - Explorer Travel Agency": "Explorer Travel Agency",
+                "Facebook - Explorer by SL": "Explorer by SL",
                 "Telegram - DM": "Telegram",
-                "Webapp": "Website"
+                "Webapp": "Webapp"
             })
         )
 
@@ -259,9 +259,9 @@ def show_lead_analytics(df):
             legend=dict(
                 orientation="h",
                 yanchor="top",
-                y=-0.22,
+                y=-0.4,
                 xanchor="center",
-                x=0.5,
+                x=0.4,
                 title=""
             ),
 
@@ -274,7 +274,7 @@ def show_lead_analytics(df):
         )
 
         fig.update_xaxes(
-            tickangle=0,
+            tickangle=-30,
             tickfont=dict(
                 size=12,
                 color="#6B7280"
