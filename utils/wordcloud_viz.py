@@ -170,9 +170,22 @@ def render_objection_wordcloud_section(
 
             if image is not None:
 
-                st.image(
-                    image,
-                    use_container_width=True
+                fig = px.imshow(image)
+
+                fig.update_layout(
+                    height=KEYWORD_CHART_HEIGHT,
+                    margin=dict(l=0, r=0, t=0, b=0),
+                    paper_bgcolor="white",
+                    plot_bgcolor="white",
+                )
+
+                fig.update_xaxes(visible=False)
+                fig.update_yaxes(visible=False)
+
+                st.plotly_chart(
+                    fig,
+                    use_container_width=True,
+                    config={"displayModeBar": False}
                 )
 
             else:

@@ -85,7 +85,7 @@ def show_objection_analysis(df):
                 else str(value)
             )
             detail_1, detail_2 = details[title]
-            card_html = f'<div class="metric-card" style="background:white;"><div class="metric-header"><div class="metric-title">{title}</div><div class="metric-icon">{icons[title]}</div></div><div style="display:flex; justify-content:space-between; align-items:flex-end;"><div class="metric-value">{display_value}</div><div style="text-align:right; color:#64748B; font-size:11px; line-height:1.3; padding-bottom:4px;"><div>{detail_1}</div><div>{detail_2}</div></div></div></div>'
+            card_html = f'<div class="metric-card" style="background:white;"><div class="metric-header"><div class="metric-title" style="white-space:nowrap;">{title}</div><div class="metric-icon">{icons[title]}</div></div><div style="display:flex; justify-content:space-between; align-items:flex-end;"><div class="metric-value">{display_value}</div><div style="text-align:right; color:#64748B; font-size:11px; line-height:1.3; padding-bottom:4px;"><div>{detail_1}</div><div>{detail_2}</div></div></div></div>'
             st.markdown(card_html, unsafe_allow_html=True)
     st.write("")
     st.markdown("<br>", unsafe_allow_html=True)
