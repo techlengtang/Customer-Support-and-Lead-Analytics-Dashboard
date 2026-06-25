@@ -100,6 +100,7 @@ def render_objection_class_overview(df, label_column='Objection Type'):
     class_counts['Share'] = (
         class_counts['Quotes'] / class_counts['Quotes'].sum() * 100
     ).round(1)
+    class_counts['Share'] = class_counts['Share'].apply(lambda x: f"{x:.1f}%")
 
     st.markdown(
         """
