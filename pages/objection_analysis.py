@@ -112,20 +112,20 @@ def show_objection_analysis(df):
 
         trend = (
             df.groupby(
-                df["First Contact Date"].dt.to_period("M")
+                df["Objection Date"].dt.to_period("M")
             )
             .size()
             .reset_index(name="Count")
         )
 
-        trend["First Contact Date"] = (
-            trend["First Contact Date"]
+        trend["Objection Date"] = (
+            trend["Objection Date"]
             .astype(str)
         )
 
         fig = px.area(
             trend,
-            x="First Contact Date",
+            x="Objection Date",
             y="Count",
             color_discrete_sequence=["#F97316"]
         )
