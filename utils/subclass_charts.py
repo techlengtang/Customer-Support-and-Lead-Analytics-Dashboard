@@ -170,25 +170,48 @@ def render_objection_class_overview(df, label_column='Objection Type'):
             showlegend=False,
         )
         st.plotly_chart(pie_fig, use_container_width=True, config={'displayModeBar': False})
+    table_df = class_counts.rename(columns={'Share': 'Share (%)'})
 
-    st.dataframe(
-        class_counts.rename(columns={'Share': 'Share (%)'}),
-        use_container_width=True,
-        hide_index=True,
+    row_template = (
+        '<tr>'
+        '<td style="text-align:left; padding:10px 16px;">{cls}</td>'
+        '<td style="text-align:center; padding:10px 16px;">{quotes:,}</td>'
+        '<td style="text-align:center; padding:10px 16px;">{share}</td>'
+        '</tr>'
     )
+    rows_html = ''.join(
+        row_template.format(
+            cls=row['Objection Class'],
+            quotes=row['Quotes'],
+            share=row['Share (%)'],
+        )
+        for _, row in table_df.iterrows()
+    )
+
+    table_html = (
+        '<table style="width:100%; border-collapse:collapse; font-family:Inter, sans-serif; font-size:14px;">'
+        '<thead><tr style="background:#F8FAFC; color:#64748B;">'
+        '<th style="text-align:left; padding:10px 16px; font-weight:500;">Objection Class</th>'
+        '<th style="text-align:center; padding:10px 16px; font-weight:500;">Quotes</th>'
+        '<th style="text-align:center; padding:10px 16px; font-weight:500;">Share (%)</th>'
+        '</tr></thead>'
+        f'<tbody>{rows_html}</tbody>'
+        '</table>'
+    )
+
+    st.markdown(table_html, unsafe_allow_html=True)
     st.markdown('<div class="section-spacer"></div>', unsafe_allow_html=True)
 
-
-CLUSTER_CLASS_STYLES = {
-    'Documentation': 'cluster-card-documentation',
-    'Trust': 'cluster-card-trust',
-    'Competitor Comparison': 'cluster-card-competitor',
-    'Lack of Understanding': 'cluster-card-understanding',
-    'Location': 'cluster-card-location',
-    'Price': 'cluster-card-price',
-    'Processing Time': 'cluster-card-processing',
-    'Risk / Guarantee Concerns': 'cluster-card-risk',
-}
+CLUSTER_CLASS_STYLES = {    
+        'Documentation': 'cluster-card-documentation',
+        'Trust': 'cluster-card-trust',
+        'Competitor Comparison': 'cluster-card-competitor',
+        'Lack of Understanding': 'cluster-card-understanding',
+        'Location': 'cluster-card-location',
+        'Price': 'cluster-card-price',
+        'Processing Time': 'cluster-card-processing',
+        'Risk / Guarantee Concerns': 'cluster-card-risk',
+    }
 
 
 def _taxonomy_summary(rules):
