@@ -40,6 +40,14 @@ def clean_dashboard_data(df):
         errors="coerce"
     )
 
+    if "Objection Date" in df.columns:
+        df["Objection Date"] = pd.to_datetime(
+            df["Objection Date"],
+            errors="coerce"
+        )
+    else:
+        df["Objection Date"] = pd.NaT
+
     df["Objection Type"] = df["Objection Type"].replace(
         "Employme - Out Of Scope",
         "Employment - Out Of Scope"

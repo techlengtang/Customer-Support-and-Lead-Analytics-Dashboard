@@ -307,6 +307,8 @@ def show_objection_analysis(df):
 
     quote_columns = [
         "Objection Type",
+        "Objection Date",
+        "First Contact Date",
         "Subclass",
         "Sentiment",
         "Quote_English",
@@ -323,7 +325,10 @@ def show_objection_analysis(df):
             return "background-color:#FEE9E5; color:#DC2626"
         return ""
 
-    display_df = df[quote_columns]
+    display_df = df[quote_columns].copy()
+    for date_column in ["Objection Date", "First Contact Date"]:
+        if date_column in display_df.columns and pd.api.types.is_datetime64_any_dtype(display_df[date_column]):
+            display_df[date_column] = display_df[date_column].dt.strftime("%Y-%m-%d")
 
     if "Sentiment" in display_df.columns:
 
